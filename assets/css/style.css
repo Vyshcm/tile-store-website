@@ -356,9 +356,6 @@ main > .section::selection, main > .inspiration-strip::selection { background: v
 .field input, .field textarea { width: 100%; padding: 16px 0; border: 0; border-bottom: 1px solid #cfd1d7; outline: none; background: transparent; transition: .3s; }
 .field input:focus, .field textarea:focus { border-color: var(--navy); }
 .field textarea { min-height: 120px; resize: vertical; }
-.map-placeholder { position: relative; display: grid; min-height: 440px; place-items: center; overflow: hidden; background: #dfe2e8; }
-.map-placeholder img { position: absolute; width: 100%; height: 100%; inset: 0; object-fit: cover; filter: grayscale(1); opacity: .55; }
-.map-card { position: relative; z-index: 1; max-width: 350px; padding: 35px; background: var(--navy-deep); color: white; text-align: center; box-shadow: var(--shadow); }
 .blog-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
 .blog-card { background: white; transition: .45s var(--ease); }
 .blog-card:hover { transform: translateY(-8px); box-shadow: var(--shadow); }
