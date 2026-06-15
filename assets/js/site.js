@@ -41,7 +41,7 @@ const allCategories = [...categories, ...subcategories];
 const navTree = [
   { name: 'Kitchen Tiles', slug: 'kitchen-tiles', children: [
     { name: 'Kitchen Floor Tiles', slug: 'kitchen-floor-tiles', image: 'assets/images/products/kitchen-floor-tiles/001-venus-bianco.jpg' },
-    { name: 'Counter Tops/Slabs', slug: 'counter-topsslabs', image: 'assets/images/products/kitchen-tiles/category-banner.jpg' }
+    { name: 'Counter Tops / Slabs', slug: 'counter-topsslabs', image: 'assets/images/products/kitchen-tiles/category-banner.jpg' }
   ]},
   { name: 'Bathroom Tiles', slug: 'bathroom-tiles', children: [
     { name: 'Bathroom Wall Tiles', slug: 'bathroom-wall-tiles' },
@@ -51,14 +51,8 @@ const navTree = [
   { name: 'Wall Tiles', slug: 'wall-tiles' },
   { name: 'Outdoor', slug: 'outdoor' },
   { name: 'Bathrooms', slug: 'bathrooms', wide: true, children: [
-    { name: 'Doors & Glass', slug: 'doors-glass', children: [
-      { name: 'Shower Doors', slug: 'shower-doors' },
-      { name: 'Wet Room Panels', slug: 'wet-room-panels' }
-    ]},
-    { name: 'Furniture', slug: 'furniture', children: [
-      { name: 'Vanity Units', slug: 'vanity-units' },
-      { name: 'Cabinets', slug: 'cabinets' }
-    ]},
+    { name: 'Doors & Glass', slug: 'doors-glass' },
+    { name: 'Furniture', slug: 'furniture' },
     { name: 'Taps', slug: 'taps' },
     { name: 'Toilets', slug: 'toilets' },
     { name: 'Shower', slug: 'shower' },
@@ -66,16 +60,11 @@ const navTree = [
     { name: 'Baths', slug: 'baths' },
     { name: 'Heating', slug: 'heating' }
   ]},
-  { name: 'Wood Flooring', slug: 'wood-flooring', children: [
-    { name: 'Laminates', slug: 'laminates', children: [
-      { name: 'Water Resistant', slug: 'water-resistant' },
-      { name: 'Non-Water Resistant', slug: 'non-water-resistant' },
-      { name: 'Wood Flooring Accessories', slug: 'wood-flooring-accessories' }
-    ]},
+  { name: 'Wood Flooring', slug: 'wood-flooring' },
+  { name: 'Laminates', slug: 'laminates', children: [
     { name: 'Herringbone', slug: 'herringbone' },
     { name: 'Luxury Vinyl Flooring', slug: 'luxury-vinyl-flooring' }
-  ]},
-  { name: 'Sale', slug: 'sale' }
+  ]}
 ];
 
 const catalogue = window.tilexCatalogue || {};
@@ -84,8 +73,12 @@ function productSlug(value) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
+function navItemIsActive(item, current) {
+  return current === `${item.slug}.html` || (item.children || []).some(child => navItemIsActive(child, current));
+}
+
 function desktopNavItem(item, current) {
-  const active = current === `${item.slug}.html`;
+  const active = navItemIsActive(item, current);
   const children = item.children || [];
   const childMarkup = children.map(child => `
     <div class="dropdown-entry ${child.children ? 'has-submenu' : ''}">
@@ -96,7 +89,7 @@ function desktopNavItem(item, current) {
       ${child.children ? `<div class="nav-submenu">${child.children.map(nested => `<a href="${nested.slug}.html">${nested.name}</a>`).join('')}</div>` : ''}
     </div>`).join('');
   return `<div class="nav-item ${children.length ? 'has-dropdown' : ''} ${item.wide ? 'wide-dropdown' : ''}">
-    <a class="${active ? 'active' : ''}" href="${item.slug}.html">${item.name}</a>
+    <a class="${active ? 'active' : ''}" href="${item.slug}.html"${children.length ? ' aria-haspopup="true"' : ''}>${item.name}</a>
     ${children.length ? `<div class="nav-dropdown">${childMarkup}</div>` : ''}
   </div>`;
 }
@@ -130,10 +123,6 @@ function shell() {
         <a class="brand" href="index.html"><img src="${A}images/tile-store-logo.png" alt="TILE STORE"></a>
         <nav class="nav-links">${navCats}<a class="${current === 'about.html' ? 'active' : ''}" href="about.html">About Us</a><a class="${current === 'contact.html' ? 'active' : ''}" href="contact.html">Contact Us</a></nav>
         <div class="nav-actions">
-          <a class="nav-contact" href="https://wa.me/353868132681" target="_blank" rel="noopener" aria-label="Contact TILE STORE on WhatsApp">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3.5A11.7 11.7 0 0 0 12.1 0C5.6 0 .3 5.3.3 11.8c0 2.1.5 4.1 1.6 5.9L.2 24l6.5-1.7a11.8 11.8 0 0 0 5.4 1.4h.1c6.5 0 11.8-5.3 11.8-11.8 0-3.2-1.2-6.1-3.5-8.4Zm-8.3 18.2c-1.7 0-3.5-.5-5-1.4l-.4-.2-3.8 1 1-3.7-.2-.4a9.8 9.8 0 1 1 8.4 4.7Zm5.4-7.3c-.3-.1-1.8-.9-2.1-1-.3-.1-.5-.1-.7.2-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-3.9-3.4-.3-.5.3-.5.8-1.7.1-.2 0-.4 0-.6L8.3 6.3c-.3-.7-.7-.6-1-.6h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.9s1.2 3.4 1.4 3.6c.2.2 2.4 3.7 5.9 5.2 2.2 1 3.1 1.1 4.2.9.7-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.2-.4-.3-.7-.4Z"/></svg>
-            <span>WhatsApp</span>
-          </a>
           <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
         </div>
       </div>
