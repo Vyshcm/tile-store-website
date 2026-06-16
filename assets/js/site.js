@@ -40,8 +40,8 @@ const allCategories = [...categories, ...subcategories];
 
 const navTree = [
   { name: 'Kitchen Tiles', slug: 'kitchen-tiles', children: [
-    { name: 'Kitchen Floor Tiles', slug: 'kitchen-floor-tiles', image: 'assets/images/products/kitchen-floor-tiles/001-venus-bianco.jpg' },
-    { name: 'Counter Tops / Slabs', slug: 'counter-topsslabs', image: 'assets/images/products/kitchen-tiles/category-banner.jpg' }
+    { name: 'Kitchen Floor Tiles', slug: 'kitchen-floor-tiles' },
+    { name: 'Counter Tops / Slabs', slug: 'counter-topsslabs' }
   ]},
   { name: 'Bathroom Tiles', slug: 'bathroom-tiles', children: [
     { name: 'Bathroom Wall Tiles', slug: 'bathroom-wall-tiles' },
