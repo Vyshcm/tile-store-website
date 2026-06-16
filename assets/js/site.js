@@ -85,6 +85,15 @@ function productSlug(value) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
+function escapeHtml(value = '') {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function navItemIsActive(item, current) {
   return current === `${item.slug}.html` || (item.children || []).some(child => navItemIsActive(child, current));
 }
@@ -198,7 +207,7 @@ function renderProductDetail() {
   const categoryUrl = `${category.slug}.html`;
   const whatsappText = encodeURIComponent(`Hello TILE STORE, I would like to enquire about ${product.name} from the ${category.name} collection.`);
   const productIndex = source.products.indexOf(product);
-  const profile = productProfile(product, category, productIndex);
+  const details = productDetails(product);
   const related = [1, 2, 3]
     .map(offset => source.products[(productIndex + offset) % source.products.length])
     .filter((item, relatedIndex, items) => item && item !== product && items.indexOf(item) === relatedIndex);
@@ -211,13 +220,9 @@ function renderProductDetail() {
           <div class="breadcrumbs" style="color:var(--muted)">Home / ${category.name} / ${product.name}</div>
           <div class="eyebrow">${category.name}</div>
           <h1>${product.name}</h1>
-          <p>${profile.description}</p>
-          <p>${profile.guidance}</p>
+          <p>${details.description}</p>
           <div class="product-specs">
-            <div class="product-spec"><small>Key features</small><ul class="product-features">${profile.features.map(feature => `<li>${feature}</li>`).join('')}</ul></div>
-            <div class="product-spec"><small>Suitable areas</small><strong>${profile.areas}</strong></div>
-            <div class="product-spec"><small>Design style</small><strong>${profile.style}</strong></div>
-            <div class="product-spec"><small>Maintenance</small><strong>${profile.maintenance}</strong></div>
+            ${details.keyFeatures.map(feature => `<div class="product-spec"><small>${feature.label}</small><strong>${feature.value}</strong></div>`).join('')}
           </div>
           <div class="product-detail-actions">
             <a class="btn" href="https://wa.me/353868132681?text=${whatsappText}" target="_blank" rel="noopener">WhatsApp Enquiry</a>
@@ -229,63 +234,27 @@ function renderProductDetail() {
     ${related.length ? `<section class="related-products"><div class="container"><div class="section-heading reveal"><div class="eyebrow">Continue exploring</div><h2>Related ${category.name}</h2></div><div class="related-products-grid">${related.map(item => `<a class="related-product reveal" href="product-detail.html?category=${encodeURIComponent(category.slug)}&id=${encodeURIComponent(productSlug(item.name))}"><img src="${item.image}" alt="${item.name}"><div><small>${category.name}</small><h3>${item.name}</h3><span class="text-link">View details</span></div></a>`).join('')}</div></div></section>` : ''}`;
 }
 
-function productProfile(product, category, index) {
-  const name = product.name;
-  const slug = category.slug;
-  const isWood = /wood|laminate|herringbone|flooring|resistant|accessories/.test(slug);
-  const isBathroomProduct = /bathrooms|doors|glass|furniture|vanity|cabinet|taps|toilets|shower|mirrors|baths|heating/.test(slug);
-  const isOutdoor = slug === 'outdoor';
-  const isSurface = /tiles|floor-tiles|wall-tiles|counter/.test(slug);
-  const moods = ['quietly architectural', 'warm and tactile', 'clean-lined and contemporary', 'richly expressive'];
-  const mood = moods[index % moods.length];
+function productDetails(product) {
+  const rawFeatures = Array.isArray(product.keyFeatures) && product.keyFeatures.length
+    ? product.keyFeatures
+    : [{ label: 'Features', value: 'Features pending' }];
+  const keyFeatures = rawFeatures.map(feature => ({
+    label: feature.label || 'Features',
+    value: feature.value || 'Features pending'
+  }));
 
-  if (isWood) {
-    return {
-      description: `${name} brings a ${mood} character to the ${category.name} collection. Its natural-looking grain and balanced tone are designed to give living spaces visual warmth without overwhelming the wider interior scheme.`,
-      guidance: `Use ${name} to create continuity through open-plan rooms or to bring a softer material contrast beside stone and tile. Our team can advise on colour coordination, installation pattern and suitable underlay.`,
-      features: ['Natural timber character', 'Comfortable visual warmth', 'Works with modern neutral palettes'],
-      areas: 'Living rooms, bedrooms, hallways and selected open-plan spaces',
-      style: index % 2 ? 'Contemporary natural' : 'Modern European',
-      maintenance: 'Regular dry cleaning with a suitable wood-floor care routine'
-    };
-  }
-  if (isBathroomProduct) {
-    return {
-      description: `${name} is a ${mood} addition to our ${category.name} edit, chosen to bring practical performance and a resolved designer finish to the bathroom.`,
-      guidance: `Pair ${name} with complementary tiles, brassware and furniture tones for a cohesive scheme. Contact our showroom for dimensions, finish availability and installation considerations.`,
-      features: ['Considered contemporary detailing', 'Selected for everyday bathroom use', 'Coordinates with wider TILE STORE collections'],
-      areas: 'Bathrooms, en suites, cloakrooms and residential wellness spaces',
-      style: index % 2 ? 'Refined contemporary' : 'Minimal luxury',
-      maintenance: 'Use non-abrasive bathroom cleaners and wipe finishes regularly'
-    };
-  }
-  if (isOutdoor) {
-    return {
-      description: `${name} introduces a ${mood} surface language to outdoor living. The design is selected to extend the architectural palette beyond the home and create a more seamless connection between inside and out.`,
-      guidance: `Consider ${name} for terraces, patios and garden rooms where tone and texture need to sit comfortably with the building exterior. Ask our team about installation and outdoor suitability.`,
-      features: ['Architectural stone character', 'Designed for cohesive outdoor schemes', 'Pairs naturally with planting and timber'],
-      areas: 'Patios, terraces, garden rooms and outdoor entertaining areas',
-      style: 'Contemporary outdoor',
-      maintenance: 'Sweep regularly and clean with products suitable for exterior surfaces'
-    };
-  }
-  if (isSurface) {
-    return {
-      description: `${name} is a ${mood} design from our ${category.name} collection. Its pattern, tone and surface character have been selected to give interiors depth while remaining easy to coordinate with cabinetry, paint and natural materials.`,
-      guidance: `Use ${name} as a calm foundation or a confident focal surface depending on scale and placement. Visit the showroom to compare the finish in person and discuss layout, grout tone and quantities.`,
-      features: ['Premium visual finish', 'Versatile colour coordination', 'Suitable for considered modern schemes'],
-      areas: slug.includes('wall') ? 'Bathrooms, kitchens and feature walls' : 'Kitchens, bathrooms, halls and living areas',
-      style: index % 3 === 0 ? 'Marble-inspired luxury' : index % 3 === 1 ? 'Modern architectural' : 'Soft contemporary',
-      maintenance: 'Clean with a pH-neutral surface cleaner and avoid abrasive products'
-    };
-  }
+  ['Size', 'Finish'].forEach(label => {
+    if (keyFeatures.some(feature => feature.label.toLowerCase() === label.toLowerCase())) return;
+    const value = product[label.toLowerCase()] || 'Features pending';
+    keyFeatures.push({ label, value });
+  });
+
   return {
-    description: `${name} is a distinctive design within our ${category.name} collection, selected for its balanced proportions, premium finish and ability to support a coherent interior scheme.`,
-    guidance: `Contact the TILE STORE team for current availability, technical guidance and help coordinating ${name} with the other materials in your project.`,
-    features: ['Premium selected finish', 'Contemporary design language', 'Showroom guidance available'],
-    areas: 'Contemporary residential interiors',
-    style: 'Modern luxury',
-    maintenance: 'Follow the recommended care guidance for the selected finish'
+    description: escapeHtml(product.description || 'Description pending'),
+    keyFeatures: keyFeatures.map(feature => ({
+      label: escapeHtml(feature.label),
+      value: escapeHtml(feature.value)
+    }))
   };
 }
 

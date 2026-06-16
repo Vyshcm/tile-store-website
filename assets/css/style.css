@@ -379,7 +379,7 @@ main > .section::selection, main > .inspiration-strip::selection { background: v
   .category-card:hover, .product-card:hover, .blog-card:hover { transform: none; }
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1024px) {
   .nav { grid-template-columns: 205px auto; justify-content: space-between; column-gap: 20px; }
   .brand img { height: 40px; }
   .nav-links { display: none; }
@@ -395,11 +395,12 @@ main > .section::selection, main > .inspiration-strip::selection { background: v
   .editorial-card-living, .editorial-card-kitchen, .editorial-card-bathroom, .editorial-card-detail, .editorial-card-architecture, .editorial-card-flooring { grid-column: auto; grid-row: auto; min-height: 0; transform: none; }
   .editorial-card-living, .editorial-card-architecture { grid-row: span 2; }
 }
-@media (max-width: 1450px) and (min-width: 1281px) {
-  .nav { grid-template-columns: 190px minmax(0, 1fr) auto; column-gap: 50px; padding: 0 18px; }
-  .brand img { height: 42px; }
-  .nav-links { gap: 8px; }
-  .nav-links > a, .nav-item > a { font-size: 9.5px; letter-spacing: .025em; }
+@media (max-width: 1450px) and (min-width: 1025px) {
+  .nav { grid-template-columns: clamp(138px, 12vw, 190px) minmax(0, 1fr) auto; column-gap: clamp(14px, 2vw, 50px); padding: 0 18px; }
+  .brand img { height: clamp(34px, 3vw, 42px); }
+  .nav-links { gap: clamp(4px, .55vw, 8px); }
+  .nav-links > a, .nav-item > a { font-size: clamp(8px, .72vw, 9.5px); letter-spacing: 0; }
+  .has-dropdown > a { padding-right: 10px; }
 }
 @media (max-width: 760px) {
   .container { width: min(100% - 30px, 1240px); }
