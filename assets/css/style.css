@@ -76,6 +76,7 @@ button, input, textarea { font: inherit; }
 .dropdown-entry img { width: 48px; height: 48px; flex: 0 0 auto; border-radius: 5px; object-fit: cover; }
 .dropdown-entry b { margin-left: auto; font-size: 18px; font-weight: 400; }
 .nav-submenu { position: absolute; top: -12px; left: calc(100% + 10px); visibility: hidden; min-width: 225px; padding: 12px; border: 1px solid rgba(15,28,65,.08); border-radius: 3px; background: rgba(255,255,255,.98); box-shadow: 0 25px 65px rgba(7,16,42,.18); opacity: 0; transform: translateX(8px); transition: .3s var(--ease); }
+.submenu-left > .nav-submenu { right: calc(100% + 10px); left: auto; transform: translateX(-8px); }
 .nav-submenu a { display: block; padding: 12px 13px; border-radius: 2px; font-size: 11px; transition: .3s; }
 .nav-submenu a:hover { background: var(--mist); color: var(--navy); }
 .has-submenu:hover > .nav-submenu, .has-submenu:focus-within > .nav-submenu { visibility: visible; opacity: 1; transform: none; }

@@ -49,10 +49,18 @@ const navTree = [
   ]},
   { name: 'Floor Tiles', slug: 'floor-tiles' },
   { name: 'Wall Tiles', slug: 'wall-tiles' },
-  { name: 'Outdoor', slug: 'outdoor' },
+  { name: 'Outdoor', slug: 'outdoor', children: [
+    { name: 'Outdoor Tiles', slug: 'outdoor' }
+  ]},
   { name: 'Bathrooms', slug: 'bathrooms', wide: true, children: [
-    { name: 'Doors & Glass', slug: 'doors-glass' },
-    { name: 'Furniture', slug: 'furniture' },
+    { name: 'Doors & Glass', slug: 'doors-glass', submenuDirection: 'left', children: [
+      { name: 'Shower Doors', slug: 'shower-doors' },
+      { name: 'Wet Room Panels', slug: 'wet-room-panels' }
+    ]},
+    { name: 'Furniture', slug: 'furniture', children: [
+      { name: 'Vanity Units', slug: 'vanity-units' },
+      { name: 'Cabinets', slug: 'cabinets' }
+    ]},
     { name: 'Taps', slug: 'taps' },
     { name: 'Toilets', slug: 'toilets' },
     { name: 'Shower', slug: 'shower' },
@@ -60,8 +68,12 @@ const navTree = [
     { name: 'Baths', slug: 'baths' },
     { name: 'Heating', slug: 'heating' }
   ]},
-  { name: 'Wood Flooring', slug: 'wood-flooring' },
-  { name: 'Laminates', slug: 'laminates', children: [
+  { name: 'Wood Flooring', slug: 'wood-flooring', children: [
+    { name: 'Laminates', slug: 'laminates', children: [
+      { name: 'Water Resistant', slug: 'water-resistant' },
+      { name: 'Non-Water Resistant', slug: 'non-water-resistant' },
+      { name: 'Wood Flooring Accessories', slug: 'wood-flooring-accessories' }
+    ]},
     { name: 'Herringbone', slug: 'herringbone' },
     { name: 'Luxury Vinyl Flooring', slug: 'luxury-vinyl-flooring' }
   ]}
@@ -81,7 +93,7 @@ function desktopNavItem(item, current) {
   const active = navItemIsActive(item, current);
   const children = item.children || [];
   const childMarkup = children.map(child => `
-    <div class="dropdown-entry ${child.children ? 'has-submenu' : ''}">
+    <div class="dropdown-entry ${child.children ? 'has-submenu' : ''} ${child.submenuDirection === 'left' ? 'submenu-left' : ''}">
       <a href="${child.slug}.html">
         ${child.image ? `<img src="${child.image}" alt="">` : ''}
         <span>${child.name}</span>${child.children ? '<b>›</b>' : ''}
