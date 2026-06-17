@@ -38,6 +38,15 @@ const subcategories = [
 
 const allCategories = [...categories, ...subcategories];
 
+const categoryHeroImages = {
+  'kitchen-tiles': 'assets/images/category-heroes/kitchen-tiles-hero.png',
+  'bathroom-tiles': 'assets/images/inspiration/serene-bathroom.png',
+  'floor-tiles': 'assets/images/category-heroes/floor-tiles-hero.png',
+  'wall-tiles': 'assets/images/category-heroes/wall-tiles-hero.png',
+  'outdoor': 'assets/images/category-heroes/outdoor-hero.png',
+  'wood-flooring': 'assets/images/inspiration/premium-oak-flooring-hero.png'
+};
+
 const navTree = [
   { name: 'Kitchen Tiles', slug: 'kitchen-tiles', children: [
     { name: 'Kitchen Floor Tiles', slug: 'kitchen-floor-tiles' },
@@ -181,7 +190,7 @@ function renderCategoryPage() {
   const category = allCategories.find(c => c.slug === slug);
   const source = catalogue[slug];
   const items = source?.products || [];
-  const hero = source?.hero || category.image;
+  const hero = categoryHeroImages[slug] || source?.hero || category.image;
   root.innerHTML = `
     <section class="page-hero"><img src="${hero}" alt="${category.name}"><div class="container page-hero-content"><div class="breadcrumbs">Home / Collections / ${category.name}</div><h1>${category.name}</h1><p>Explore our current ${category.name} collection, selected for beautiful, enduring interior spaces.</p></div></section>
     <section class="section"><div class="container"><div class="filter-bar"><span>Showing ${items.length} products</span><select aria-label="Sort products"><option>Featured order</option><option>Name A - Z</option></select></div>${items.length ? `<div class="products-grid">${items.map(product => productCard(product, category.name, slug)).join('')}</div>` : `<div class="empty-collection reveal"><div class="eyebrow">Collection update</div><h2>New designs are being prepared.</h2><p>Contact our showroom for current availability and tailored recommendations in ${category.name}.</p><a class="btn" href="contact.html">Contact TILE STORE</a></div>`}</div></section>
@@ -338,31 +347,33 @@ function splitMotionText() {
     '.page-hero h1'
   ];
 
-  document.querySelectorAll(selectors.join(',')).forEach(element => {
-    if (element.dataset.textSplit) return;
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-    const textNodes = [];
-    while (walker.nextNode()) textNodes.push(walker.currentNode);
-    textNodes.forEach(node => {
-      const fragment = document.createDocumentFragment();
-      node.textContent.split(/(\s+)/).forEach(part => {
-        if (!part) return;
-        if (/^\s+$/.test(part)) {
-          fragment.appendChild(document.createTextNode(part));
-          return;
-        }
-        const word = document.createElement('span');
-        word.className = 'motion-word';
-        const inner = document.createElement('span');
-        inner.className = 'motion-word-inner';
-        inner.textContent = part;
-        word.appendChild(inner);
-        fragment.appendChild(word);
-      });
-      node.replaceWith(fragment);
+  document.querySelectorAll(selectors.join(',')).forEach(splitMotionElement);
+}
+
+function splitMotionElement(element) {
+  if (element.dataset.textSplit) return;
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  while (walker.nextNode()) textNodes.push(walker.currentNode);
+  textNodes.forEach(node => {
+    const fragment = document.createDocumentFragment();
+    node.textContent.split(/(\s+)/).forEach(part => {
+      if (!part) return;
+      if (/^\s+$/.test(part)) {
+        fragment.appendChild(document.createTextNode(part));
+        return;
+      }
+      const word = document.createElement('span');
+      word.className = 'motion-word';
+      const inner = document.createElement('span');
+      inner.className = 'motion-word-inner';
+      inner.textContent = part;
+      word.appendChild(inner);
+      fragment.appendChild(word);
     });
-    element.dataset.textSplit = 'true';
+    node.replaceWith(fragment);
   });
+  element.dataset.textSplit = 'true';
 }
 
 function nativeMotionFallback() {
@@ -574,6 +585,28 @@ async function interactions() {
     let current = 0;
     const dots = [...document.querySelectorAll('.hero-dots button')];
     const progress = document.querySelector('.hero-progress span');
+    const heroCopy = [
+      {
+        eyebrow: 'Curated surfaces · Dublin',
+        title: 'Luxury Tiles For <em>Modern Living</em>',
+        sub: 'Premium tiles, bathrooms and wood flooring selected to make every room feel considered, enduring and unmistakably yours.'
+      },
+      {
+        eyebrow: 'Bathrooms · Spa-grade finishes',
+        title: 'Bathroom Luxury <em>Designed To Unwind</em>',
+        sub: 'Elegant spaces created for comfort, style, and relaxation.'
+      },
+      {
+        eyebrow: 'Wood flooring · Refined oak',
+        title: 'Natural Beauty <em>Underfoot</em>',
+        sub: 'Timeless wood flooring that brings warmth to every room.'
+      },
+      {
+        eyebrow: 'Kitchen surfaces · Statement splashbacks',
+        title: 'Kitchen Elegance <em>Crafted For Living</em>',
+        sub: 'Premium kitchen surfaces designed for modern homes.'
+      }
+    ];
     let timer;
     const showSlide = next => {
       slides[current].classList.remove('active');
@@ -585,6 +618,19 @@ async function interactions() {
       if (number) number.textContent = `0${current + 1}`;
       if (progress) progress.style.transform = `translateX(${current * 100}%)`;
       const copy = document.querySelector('.hero-copy');
+      const activeCopy = heroCopy[current];
+      if (copy && activeCopy) {
+        const eyebrow = copy.querySelector('.eyebrow');
+        const title = copy.querySelector('h1');
+        const sub = copy.querySelector('.hero-sub');
+        if (eyebrow) eyebrow.textContent = activeCopy.eyebrow;
+        if (title) {
+          title.innerHTML = activeCopy.title;
+          delete title.dataset.textSplit;
+          splitMotionElement(title);
+        }
+        if (sub) sub.textContent = activeCopy.sub;
+      }
       if (copy && window.gsap) {
         window.gsap.fromTo(copy.children, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: .65, stagger: .07, ease: 'power3.out', overwrite: true, clearProps: 'opacity,transform' });
       }
