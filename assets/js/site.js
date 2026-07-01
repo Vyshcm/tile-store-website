@@ -47,6 +47,12 @@ const categoryHeroImages = {
   'wood-flooring': 'assets/images/inspiration/premium-oak-flooring-hero.png'
 };
 
+function categoryHeroForSlug(slug) {
+  const category = allCategories.find(item => item.slug === slug);
+  const source = catalogue[slug];
+  return categoryHeroImages[slug] || source?.hero || category?.image || '';
+}
+
 const navTree = [
   { name: 'Kitchen Tiles', slug: 'kitchen-tiles', children: [
     { name: 'Kitchen Floor Tiles', slug: 'kitchen-floor-tiles' },
@@ -147,7 +153,7 @@ function shell() {
     showLoader = true;
   }
   document.body.insertAdjacentHTML('afterbegin', `
-    ${showLoader ? `<div class="loader"><div class="loader-inner"><img src="${A}images/tile-store-logo.png" alt="TILE STORE"><div class="loader-line"></div></div></div>` : ''}
+    ${showLoader ? `<div class="loader" aria-label="TILE STORE logo introduction"><div class="loader-intro"><span class="loader-glow" aria-hidden="true"></span><img class="loader-logo" src="${A}images/tile-store-logo.png" alt="TILE STORE"><span class="loader-sheen" aria-hidden="true"></span></div></div>` : ''}
     <header class="site-header ${current !== 'index.html' ? 'inner-header' : ''}">
       <div class="container nav">
         <a class="brand" href="index.html"><img src="${A}images/tile-store-logo.png" alt="TILE STORE"></a>
@@ -180,7 +186,7 @@ function shell() {
 
 function productCard(product, category, categorySlug) {
   const detailUrl = `product-detail.html?category=${encodeURIComponent(categorySlug)}&id=${encodeURIComponent(productSlug(product.name))}`;
-  return `<article class="product-card reveal"><div class="product-image"><img src="${product.image}" alt="${product.name}" loading="lazy"></div><div class="product-meta"><small>${category}</small><h3>${product.name}</h3><a class="text-link" href="${detailUrl}">View details</a></div></article>`;
+  return `<article class="product-card"><div class="product-image"><img src="${product.image}" alt="${product.name}" loading="lazy"></div><div class="product-meta"><small>${category}</small><h3>${product.name}</h3><a class="text-link" href="${detailUrl}">View details</a></div></article>`;
 }
 
 function renderCategoryPage() {
@@ -190,10 +196,10 @@ function renderCategoryPage() {
   const category = allCategories.find(c => c.slug === slug);
   const source = catalogue[slug];
   const items = source?.products || [];
-  const hero = categoryHeroImages[slug] || source?.hero || category.image;
+  const hero = categoryHeroForSlug(slug);
   root.innerHTML = `
-    <section class="page-hero"><img src="${hero}" alt="${category.name}"><div class="container page-hero-content"><div class="breadcrumbs">Home / Collections / ${category.name}</div><h1>${category.name}</h1><p>Explore our current ${category.name} collection, selected for beautiful, enduring interior spaces.</p></div></section>
-    <section class="section"><div class="container"><div class="filter-bar"><span>Showing ${items.length} products</span><select aria-label="Sort products"><option>Featured order</option><option>Name A - Z</option></select></div>${items.length ? `<div class="products-grid">${items.map(product => productCard(product, category.name, slug)).join('')}</div>` : `<div class="empty-collection reveal"><div class="eyebrow">Collection update</div><h2>New designs are being prepared.</h2><p>Contact our showroom for current availability and tailored recommendations in ${category.name}.</p><a class="btn" href="contact.html">Contact TILE STORE</a></div>`}</div></section>
+    <section class="page-hero category-hero-enter"><img src="${hero}" alt="${category.name}"><div class="container page-hero-content"><h1>${category.name}</h1><p>Explore our current ${category.name} collection, selected for beautiful, enduring interior spaces.</p></div></section>
+    <section class="section"><div class="container"><div class="filter-bar"><span>Showing ${items.length} products</span></div>${items.length ? `<div class="products-grid">${items.map(product => productCard(product, category.name, slug)).join('')}</div>` : `<div class="empty-collection reveal"><div class="eyebrow">Collection update</div><h2>New designs are being prepared.</h2><p>Contact our showroom for current availability and tailored recommendations in ${category.name}.</p><a class="btn" href="contact.html">Contact TILE STORE</a></div>`}</div></section>
     ${ctaBlock(hero)}`;
 }
 
@@ -226,7 +232,6 @@ function renderProductDetail() {
       <div class="container product-detail-grid">
         <div class="product-detail-image reveal"><img src="${product.image}" alt="${product.name}"></div>
         <div class="product-detail-copy reveal">
-          <div class="breadcrumbs" style="color:var(--muted)">Home / ${category.name} / ${product.name}</div>
           <div class="eyebrow">${category.name}</div>
           <h1>${product.name}</h1>
           <p>${details.description}</p>
@@ -316,7 +321,7 @@ async function loadMotionLibraries() {
 function prepareMotionElements() {
   splitMotionText();
 
-  document.querySelectorAll('.category-card, .product-card, .feature-card, .value-card, .gallery-item, .blog-card, .showcase-panel, .inspiration-card, .editorial-card')
+  document.querySelectorAll('.category-card, .feature-card, .value-card, .gallery-item, .blog-card, .showcase-panel, .inspiration-card, .editorial-card')
     .forEach((element, index) => {
       element.dataset.motionIndex = String(index);
     });
@@ -329,7 +334,7 @@ function prepareMotionElements() {
       element.dataset.aosOnce = 'true';
     });
 
-  document.querySelectorAll('.category-card, .product-image, .gallery-item, .about-visual, .blog-card, .page-hero, .showcase-panel, .inspiration-card, .editorial-card')
+  document.querySelectorAll('.category-card, .gallery-item, .about-visual, .blog-card, .showcase-panel, .inspiration-card, .editorial-card')
     .forEach(element => element.classList.add('image-reveal'));
   document.querySelectorAll('.hero-slide img, .page-hero > img, .cta > img')
     .forEach(element => element.classList.add('motion-depth'));
@@ -423,7 +428,6 @@ function runGsapMotion() {
       .from('.hero-index, .scroll-cue', { opacity: 0, duration: .7 }, '-=.3');
   } else {
     entrance
-      .from('.page-hero .breadcrumbs', { y: 18, opacity: 0, duration: .55 }, '-=.35')
       .fromTo('.page-hero h1 .motion-word-inner',
         { yPercent: 112 },
         { yPercent: 0, duration: .95, stagger: .045, clearProps: 'transform' },
@@ -431,7 +435,7 @@ function runGsapMotion() {
       .from('.page-hero p', { y: 24, opacity: 0, duration: .7 }, '-=.5');
   }
 
-  gsap.utils.toArray('.section-heading, .about-copy, .contact-details, .form-panel, .testimonial, .cta-inner, .inspiration-gallery-head, .inspiration-heading')
+  gsap.utils.toArray('.section-heading, .about-copy, .contact-details, .form-panel, .contact-cta-panel, .testimonial, .cta-inner, .inspiration-gallery-head, .inspiration-heading')
     .forEach(element => gsap.from(element, {
       scrollTrigger: { trigger: element, start: 'top 88%', once: true },
       y: 34, opacity: 0, duration: .85, ease: 'power3.out'
@@ -452,23 +456,12 @@ function runGsapMotion() {
   groups.forEach(selector => {
     const group = document.querySelector(selector);
     if (!group) return;
-    const cards = group.querySelectorAll('.category-card, .product-card, .feature-card, .value-card, .gallery-item, .blog-card, .showcase-panel, .inspiration-card, .editorial-card');
+    const cards = group.querySelectorAll('.category-card, .feature-card, .value-card, .gallery-item, .blog-card, .showcase-panel, .inspiration-card, .editorial-card');
     gsap.from(cards, {
       scrollTrigger: { trigger: group, start: 'top 86%', once: true },
       y: 58, opacity: 0, scale: .975, duration: .95, stagger: { each: .1, from: 'start' }, ease: 'power3.out',
       clearProps: 'opacity,transform'
     });
-  });
-
-  ScrollTrigger.batch('.products-grid .product-card', {
-    start: 'top 90%',
-    once: true,
-    batchMax: 6,
-    interval: .08,
-    onEnter: batch => gsap.fromTo(batch,
-      { y: 42, opacity: 0, scale: .985 },
-      { y: 0, opacity: 1, scale: 1, duration: .8, stagger: .07, ease: 'power3.out', clearProps: 'opacity,transform' }
-    )
   });
 
   ScrollTrigger.batch('.image-reveal', {
@@ -533,7 +526,13 @@ function runGsapMotion() {
 
 async function interactions() {
   const loader = document.querySelector('.loader');
+  const loaderIntro = loader?.querySelector('.loader-intro');
+  let pageLoaded = !loader;
+  let introFinished = !loaderIntro;
+  let loadingFinished = false;
   const finishLoading = () => {
+    if (loadingFinished || !pageLoaded || !introFinished) return;
+    loadingFinished = true;
     loader?.classList.add('hide');
     document.body.classList.add('motion-ready');
     if (loader) {
@@ -546,8 +545,22 @@ async function interactions() {
     }
   };
   if (loader) {
-    window.addEventListener('load', () => setTimeout(finishLoading, reducedMotion.matches ? 0 : 500), { once: true });
-    setTimeout(finishLoading, reducedMotion.matches ? 0 : 1800);
+    window.addEventListener('load', () => {
+      pageLoaded = true;
+      finishLoading();
+    }, { once: true });
+    if (loaderIntro) {
+      loaderIntro.addEventListener('animationend', event => {
+        if (event.animationName !== 'loaderIntro') return;
+        introFinished = true;
+        finishLoading();
+      }, { once: true });
+    }
+    setTimeout(() => {
+      introFinished = true;
+      pageLoaded = true;
+      finishLoading();
+    }, reducedMotion.matches ? 0 : 4200);
   } else {
     document.body.classList.add('motion-ready');
   }
@@ -568,6 +581,31 @@ async function interactions() {
       const owner = button.closest('.mobile-nav-item, .mobile-subgroup');
       owner?.classList.toggle('open');
     });
+  });
+  const categoryPaths = new Set(allCategories.map(category => `${category.slug}.html`));
+  document.addEventListener('click', event => {
+    const link = event.target.closest('a[href]');
+    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (link.target && link.target !== '_self') return;
+    const targetUrl = new URL(link.href, location.href);
+    const targetPage = targetUrl.pathname.split('/').pop();
+    const currentPage = location.pathname.split('/').pop() || 'index.html';
+    if (targetUrl.origin !== location.origin || !categoryPaths.has(targetPage) || targetPage === currentPage) return;
+    const targetSlug = targetPage.replace(/\.html$/, '');
+    const hero = categoryHeroForSlug(targetSlug);
+    if (!hero) return;
+    event.preventDefault();
+    const image = new Image();
+    let navigated = false;
+    const go = () => {
+      if (navigated) return;
+      navigated = true;
+      location.href = targetUrl.href;
+    };
+    image.onload = go;
+    image.onerror = go;
+    image.src = hero;
+    if (image.complete) go();
   });
   prepareMotionElements();
   if (reducedMotion.matches) {
